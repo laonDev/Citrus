@@ -8,11 +8,11 @@ package
 	{
 		public var jumpDecceleration:Number = 0.03;
 		public var _mobileInput:MobileInput;
-		
+//		public var max
 		public function ChildHero(name:String, params:Object=null)
 		{
 			super(name, params);
-			
+			this.jumpHeight = 2048;
 			_mobileInput = new MobileInput();
 			_mobileInput.initialize();
 		}

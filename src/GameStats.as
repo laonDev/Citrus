@@ -4,6 +4,7 @@ package
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
+	import Box2D.Collision.Shapes.b2MassData;
 	import Box2D.Common.Math.b2Vec2;
 	import Box2D.Dynamics.Contacts.b2Contact;
 	
@@ -40,6 +41,8 @@ package
 		private var child:ChildHero;
 		private var mobileInput:MobileInput;
 		private var goal:Coin;
+		private var launch:Boolean = false;
+		private  var tick:Number;
 		
 		public function GameStats()
 		{
@@ -63,9 +66,9 @@ package
 			floor.view = new Quad(2048, 40, 0x000000);
 			add(floor);
 			
-			var p1:Platform = new Platform("p1", {x: 874, y:151, width:300, height:40});
-			p1.view = new Quad(300, 40, 0x000000); 
-			add(p1);
+//			var p1:Platform = new Platform("p1", {x: 874, y:151, width:300, height:40});
+//			p1.view = new Quad(300, 40, 0x000000); 
+//			add(p1);
 			
 //			var mp:MovingPlatform = new MovingPlatform("moving", {x:220, y:700, width:200, height:40, startX:220, startY:700, endX:500, endY:151});
 //			add(mp);
@@ -78,7 +81,9 @@ package
 			child = new ChildHero("child", {x:50, y:50, width:376, height:374});
 			child.view = new Cat();
 			add(child);
-			
+			var mass:b2MassData = new b2MassData();
+			mass.mass = 1;
+			child.body.SetMassData(mass);
 //			var cannon:Cannon = new Cannon("cannon", {x:50, y:50, width:70, height:70});
 //			add(cannon);
 //			var enemy:Enemy = new Enemy("enemy",
@@ -111,22 +116,13 @@ package
 //			vx = (initForce/massive) * Math.cos(deg2rad(-initDegree)) + 0.0015 * windForce * Math.cos(deg2rad(180)) / massive;
 //			vy = (initForce/massive) * Math.sin(deg2rad(-initDegree)) - gravity * tick - 0.0015 * windForce * Math.sin(deg2rad(180)) / massive;
 			super.update(timeDelta);
-			
-			goal
-			
-			if(mobileInput.screenTouched)
+			trace(tick);
+			tick += timeDelta;
+			if(mobileInput.screenTouched);
 			{
-				trace("touch");
-				var velocity:b2Vec2 = child.body.GetLinearVelocity();
-				velocity.x = 10 *Math.cos(-30);
-				velocity.y = -(10 *Math.sin(-30));
+//				trace(child.animation);
+//				if(child.animation == "jump") return;
 				
-				velocity.x = child.x < 200 ? 10 *Math.cos(-30) : 0;
-				velocity.y = child.y > 300 ? -(10 *Math.sin(-30)) : 0;
-				trace(floor.x);
-				floor.x = child.x < 200 ? floor.x : floor.x - (10 *Math.cos(-30));
-				trace(floor.x);
-				child.body.SetLinearVelocity(velocity);
 			}
 //			var vx:Number = Math.cos(deg2rad(-30));
 //			var vy:Number = Math.sin(deg2rad(-30));
@@ -141,10 +137,53 @@ package
 ////			trace(floor.x);
 //			if(floor.x < 0) floor.x = 0;
 //			if(floor.x < -stage.stageWidth) floor.x = -stage.stageWidth;
-			
+			if(launch)
+			{
+				var velocity:b2Vec2 = child.body.GetLinearVelocity();
+				velocity.x = 30 *Math.cos(deg2rad(-70));
+				velocity.y = 30 * Math.sin(deg2rad(-70)) + 9.8 * tick;
+//				if(velocity.y < 0)
+//				{
+//					velocity.y -= child.jumpAcceleration;
+//				}
+//				else
+//					velocity.y -= child.jumpDecceleration;
+				trace(velocity.x, velocity.y);
+				velocity.x = child.x < 200 ? velocity.x : 0;
+				velocity.y = child.y > 300 ? velocity.y : 0;
+//				
+//				
+////				velocity.y = child.y > 300 ? -(10 *Math.sin(-30)) : 0;
+////				trace(floor.x);
+				floor.x = child.x < 200 ? floor.x : floor.x - (10 *Math.cos(-30));
+////				trace(floor.x);
+				child.body.SetLinearVelocity(velocity);
+			}
 			if(CitrusEngine.getInstance().input.isDown(Keyboard.SPACE))
 			{ 
 				trace("dd");
+				trace("touch");
+				launch = true;
+				tick = 0;
+//				var velocity:b2Vec2 = child.body.GetLinearVelocity();
+//				velocity.x = 20 * 30 *Math.cos(deg2rad(-30));
+//				velocity.y = 20 * 30* Math.sin(deg2rad(-30));
+//				if(velocity.y < 0)
+//				{
+//					velocity.y -= child.jumpAcceleration;
+//				}
+//				else
+//					velocity.y -= child.jumpDecceleration;
+//				trace(velocity.x, velocity.y);
+//				velocity.x = child.x < 200 ? velocity.x : 0;
+//				velocity.y = child.y > 300 ? velocity.y : 0;
+				
+				
+				//				velocity.y = child.y > 300 ? -(10 *Math.sin(-30)) : 0;
+				//				trace(floor.x);
+//				floor.x = child.x < 200 ? floor.x : floor.x - (10 *Math.cos(-30));
+				//				trace(floor.x);
+//				child.body.SetLinearVelocity(velocity);
 //				hero.body.SetLinearVelocity(new b2Vec2(Math.cos(30),Math.sin(30)));
 			}
 		}

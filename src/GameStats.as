@@ -1,7 +1,6 @@
 package
 {
 	import flash.events.MouseEvent;
-	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	import Box2D.Collision.Shapes.b2MassData;
@@ -11,17 +10,14 @@ package
 	import citrus.core.CitrusEngine;
 	import citrus.core.starling.StarlingState;
 	import citrus.input.controllers.Keyboard;
-	import citrus.math.MathUtils;
 	import citrus.math.MathVector;
-	import citrus.objects.platformer.box2d.Cannon;
+	import citrus.objects.CitrusSprite;
 	import citrus.objects.platformer.box2d.Coin;
-	import citrus.objects.platformer.box2d.Enemy;
 	import citrus.objects.platformer.box2d.Hero;
-	import citrus.objects.platformer.box2d.MovingPlatform;
 	import citrus.objects.platformer.box2d.Platform;
 	import citrus.physics.box2d.Box2D;
-	import citrus.utils.Mobile;
 	
+	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.utils.deg2rad;
 	
@@ -36,7 +32,12 @@ package
 		[Embed(source="tigers.png")]
 		private var tigers:Class;
 		
+		//fly object values
+		private var angle:int;
+		
 		private var floor:Platform;
+		private var bg:CitrusSprite;
+		private var gameBg:GameBackGround;
 		private var hero:Hero;
 		private var child:ChildHero;
 		private var mobileInput:MobileInput;
@@ -66,36 +67,40 @@ package
 			floor.view = new Quad(2048, 40, 0x000000);
 			add(floor);
 			
-//			var p1:Platform = new Platform("p1", {x: 874, y:151, width:300, height:40});
-//			p1.view = new Quad(300, 40, 0x000000); 
-//			add(p1);
-			
-//			var mp:MovingPlatform = new MovingPlatform("moving", {x:220, y:700, width:200, height:40, startX:220, startY:700, endX:500, endY:151});
-//			add(mp);
-			
-//			hero = new Hero("hero", {x:50, y:50, width:70, height:70});
-//			hero.view = new giants();
-//			hero.body.SetLinearVelocity(new b2Vec2(Math.cos(30),Math.sin(30)));
-//			add(hero);
-			
-			child = new ChildHero("child", {x:50, y:50, width:376, height:374});
+			bg = new CitrusSprite("bg", {x:0, y:0, width: 2048, height:768 +768 });
+			bg.view = new GameBackGround();
+			add(bg);
+
+			child = new ChildHero("child", {x:50, y:50, width:280, height:280});
 			child.view = new Cat();
 			add(child);
 			var mass:b2MassData = new b2MassData();
 			mass.mass = 1;
-			child.body.SetMassData(mass);
-//			var cannon:Cannon = new Cannon("cannon", {x:50, y:50, width:70, height:70});
-//			add(cannon);
-//			var enemy:Enemy = new Enemy("enemy",
-//				{x:900, y:700, width:70, height:70, leftBound:10, rightBound:1000});
-//			add(enemy);
 			
+			child.body.SetMassData(mass);
 			goal = new Coin("goal", {x:900, y:600, width:79, height:79});
 			goal.onBeginContact.add(function(c:b2Contact):void{
 				trace("ginants win");
 			});
 			add(goal);
 			
+			angle = -70;
+//			var p1:Platform = new Platform("p1", {x: 874, y:151, width:300, height:40});
+//			p1.view = new Quad(300, 40, 0x000000); 
+//			add(p1);
+
+//			var mp:MovingPlatform = new MovingPlatform("moving", {x:220, y:700, width:200, height:40, startX:220, startY:700, endX:500, endY:151});
+//			add(mp);
+
+//			hero = new Hero("hero", {x:50, y:50, width:70, height:70});
+//			hero.view = new giants();
+//			hero.body.SetLinearVelocity(new b2Vec2(Math.cos(30),Math.sin(30)));
+//			add(hero);
+//			var cannon:Cannon = new Cannon("cannon", {x:50, y:50, width:70, height:70});
+//			add(cannon);
+//			var enemy:Enemy = new Enemy("enemy",
+//				{x:900, y:700, width:70, height:70, leftBound:10, rightBound:1000});
+//			add(enemy);
 		}
 		override public function destroy():void
 		{
@@ -116,75 +121,79 @@ package
 //			vx = (initForce/massive) * Math.cos(deg2rad(-initDegree)) + 0.0015 * windForce * Math.cos(deg2rad(180)) / massive;
 //			vy = (initForce/massive) * Math.sin(deg2rad(-initDegree)) - gravity * tick - 0.0015 * windForce * Math.sin(deg2rad(180)) / massive;
 			super.update(timeDelta);
-			trace(tick);
 			tick += timeDelta;
 			if(mobileInput.screenTouched);
 			{
-//				trace(child.animation);
-//				if(child.animation == "jump") return;
 				
 			}
-//			var vx:Number = Math.cos(deg2rad(-30));
-//			var vy:Number = Math.sin(deg2rad(-30));
-//			trace(vx, vy);
-//			child.x = child.x < 200 ? child.x + vx: child.x;
-//			child.y = child.y - vy;
-////			child.y = child.y > 300 ? child.y - vy: child.y;
-//			
-////			trace(floor.x);
-//			floor.x = child.x < 200 ? floor.x : floor.x - vx;
-////			floor.y = child.y < 300 ? floor.y : floor.y + vy;
-////			trace(floor.x);
-//			if(floor.x < 0) floor.x = 0;
-//			if(floor.x < -stage.stageWidth) floor.x = -stage.stageWidth;
+			
 			if(launch)
 			{
+				
 				var velocity:b2Vec2 = child.body.GetLinearVelocity();
-				velocity.x = 30 *Math.cos(deg2rad(-70));
-				velocity.y = 30 * Math.sin(deg2rad(-70)) + 9.8 * tick;
-//				if(velocity.y < 0)
-//				{
-//					velocity.y -= child.jumpAcceleration;
-//				}
-//				else
-//					velocity.y -= child.jumpDecceleration;
-				trace(velocity.x, velocity.y);
+				velocity.x = 30 *Math.cos(deg2rad(angle)) - tick * 10 * Math.cos(deg2rad(180));
+				velocity.y = 30 * Math.sin(deg2rad(angle)) + 9.8 * tick;
+				
+				if(child.x < 200)
+				{
+					bg.x = bg.x;
+					floor.x = floor.x;
+				}else
+				{
+					floor.x -= velocity.x;					
+					bg.x -= velocity.x;
+				}
+				if(velocity.y < 0)
+				{
+					if(child.y > 300)
+					{
+						floor.y = floor.y;
+						bg.y = bg.y;
+					}else
+					{
+						floor.y -= velocity.y;
+						bg.y -= velocity.y;
+					}
+				}else
+				{
+					floor.y =floor.y < 748 ? floor.y - velocity.y : 748;
+					bg.y = bg.y > 0 ? bg.y - velocity.y : 0;
+					
+					if(floor.y == 748 && bg.y == 0)
+						launch = false;
+						
+					if(child.onGround)
+					{
+						launch = false;
+						return;
+					}
+				}
+				if(floor.x < 0) floor.x = 0;
+				if(floor.x < -stage.stageWidth) floor.x = -stage.stageWidth;
+				
+				if (bg.x > 0) bg.x = -stage.stageWidth;
+				if (bg.x < -stage.stageWidth ) bg.x = 0;
+				if (bg.y < 0) bg.y = -stage.stageHeight;
+				if (bg.y > stage.stageHeight) bg.y = 0;
+
 				velocity.x = child.x < 200 ? velocity.x : 0;
+				if(velocity.y < 0) //상승
+				{
+					velocity.y = child.y > 300 ? velocity.y : 0;
+				}else //하강
+				{
+					velocity.y = child.y < 300 ? velocity.y : 0;
+					
+				}
 				velocity.y = child.y > 300 ? velocity.y : 0;
-//				
-//				
-////				velocity.y = child.y > 300 ? -(10 *Math.sin(-30)) : 0;
-////				trace(floor.x);
-				floor.x = child.x < 200 ? floor.x : floor.x - (10 *Math.cos(-30));
-////				trace(floor.x);
 				child.body.SetLinearVelocity(velocity);
+				
 			}
 			if(CitrusEngine.getInstance().input.isDown(Keyboard.SPACE))
 			{ 
-				trace("dd");
-				trace("touch");
+				trace("launch");
 				launch = true;
 				tick = 0;
-//				var velocity:b2Vec2 = child.body.GetLinearVelocity();
-//				velocity.x = 20 * 30 *Math.cos(deg2rad(-30));
-//				velocity.y = 20 * 30* Math.sin(deg2rad(-30));
-//				if(velocity.y < 0)
-//				{
-//					velocity.y -= child.jumpAcceleration;
-//				}
-//				else
-//					velocity.y -= child.jumpDecceleration;
-//				trace(velocity.x, velocity.y);
-//				velocity.x = child.x < 200 ? velocity.x : 0;
-//				velocity.y = child.y > 300 ? velocity.y : 0;
-				
-				
-				//				velocity.y = child.y > 300 ? -(10 *Math.sin(-30)) : 0;
-				//				trace(floor.x);
-//				floor.x = child.x < 200 ? floor.x : floor.x - (10 *Math.cos(-30));
-				//				trace(floor.x);
-//				child.body.SetLinearVelocity(velocity);
-//				hero.body.SetLinearVelocity(new b2Vec2(Math.cos(30),Math.sin(30)));
 			}
 		}
 	}

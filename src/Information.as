@@ -17,6 +17,7 @@ package
 		private var altitudeLabel:TextField;
 		private var altitudeText:TextField;
 		
+		
 		public function Information()
 		{
 			super();
@@ -32,7 +33,7 @@ package
 			distanceLabel.y = 5;
 			this.addChild(distanceLabel);
 			
-			distanceText = new TextField(150, 75, "0");
+			distanceText = new TextField(150, 55, "0");
 			distanceText.width = distanceLabel.width;
 			distanceText.x = int(distanceLabel.x + distanceLabel.width - distanceText.width);
 			distanceText.y = distanceLabel.y + distanceLabel.height;
@@ -43,7 +44,7 @@ package
 			speedLabel.y = 5;
 			this.addChild(speedLabel);
 			
-			speedText = new TextField(150, 75, "0");
+			speedText = new TextField(150, 55, "0");
 			speedText.width = speedLabel.width;
 			speedText.x = int(speedLabel.x + speedLabel.width - speedText.width);
 			speedText.y = speedLabel.y + speedLabel.height;
@@ -54,7 +55,7 @@ package
 			altitudeLabel.y = 5;
 			this.addChild(altitudeLabel);
 			
-			altitudeText = new TextField(150, 75, "0");
+			altitudeText = new TextField(150, 55, "0");
 			altitudeText.width = altitudeLabel.width;
 			altitudeText.x = int(altitudeLabel.x + altitudeLabel.width - altitudeText.width);
 			altitudeText.y = altitudeLabel.y + altitudeLabel.height;

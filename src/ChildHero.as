@@ -1,18 +1,19 @@
 package
 {
-	import Box2D.Common.Math.b2Vec2;
-	
 	import citrus.objects.platformer.box2d.Hero;
 	
 	public class ChildHero extends Hero
 	{
 		public var jumpDecceleration:Number = 0.03;
 		public var _mobileInput:MobileInput;
+		
 //		public var max
 		public function ChildHero(name:String, params:Object=null)
 		{
 			super(name, params);
 			this.jumpHeight = 2048;
+			this.maxVelocity = 100;
+//			this.friction = 1;
 			_mobileInput = new MobileInput();
 			_mobileInput.initialize();
 		}
@@ -42,7 +43,10 @@ package
 			updateAnimantion();
 			
 		}
-		
+		public function set onGround(value:Boolean):void
+		{
+			this._onGround = value;			
+		}
 		private function updateAnimantion():void
 		{
 			// TODO Auto Generated method stub

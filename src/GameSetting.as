@@ -84,19 +84,19 @@ package
 			forceText.type = TextFieldType.INPUT;
 			Starling.current.nativeOverlay.addChild(forceText);
 			
-			gravityLabel = new TextField();
-			gravityLabel.x = 350;
-			gravityLabel.y = 275;
-			gravityLabel.text = "Gravity";
-			Starling.current.nativeOverlay.addChild(gravityLabel);
-			
-			gravityText = new TextField();
-			gravityText.x = 450;
-			gravityText.y = 275;
-			gravityText.height = 20;
-			gravityText.border = true;
-			gravityText.type = TextFieldType.INPUT;
-			Starling.current.nativeOverlay.addChild(gravityText);
+//			gravityLabel = new TextField();
+//			gravityLabel.x = 350;
+//			gravityLabel.y = 275;
+//			gravityLabel.text = "Gravity";
+//			Starling.current.nativeOverlay.addChild(gravityLabel);
+//			
+//			gravityText = new TextField();
+//			gravityText.x = 450;
+//			gravityText.y = 275;
+//			gravityText.height = 20;
+//			gravityText.border = true;
+//			gravityText.type = TextFieldType.INPUT;
+//			Starling.current.nativeOverlay.addChild(gravityText);
 			
 			
 		}

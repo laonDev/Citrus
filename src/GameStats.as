@@ -7,6 +7,8 @@ package
 	import Box2D.Common.Math.b2Vec2;
 	import Box2D.Dynamics.Contacts.b2Contact;
 	
+	import box2dstarling.PhysicsEditorObjects;
+	
 	import citrus.core.CitrusEngine;
 	import citrus.core.starling.StarlingState;
 	import citrus.input.controllers.Keyboard;
@@ -41,8 +43,7 @@ package
 		[Embed(source="fishShapedBread.jpg")]
 		private var FiahBreadImage:Class;
 		
-		private const HORIZONTAL_MEASURE:Number = 5;
-		private const VERTICAL_MEASURE:Number = 2;
+		
 		//fly object values
 		private var angle:int;
 		
@@ -53,16 +54,18 @@ package
 		private var info:Information;
 		
 		private var hero:Hero;
-		private var child:ChildHero;
+//		private var child:ChildHero;
+		private var child:CatObject_2;
 		private var mobileInput:MobileInput;
 		private var goal:Coin;
 		private var launch:Boolean = false;
 		private  var tick:Number;
-		private var initForce:int;
+		private var initForce:Number;
 		private var initDegree:int;
-		private var windForce:int;
-		private var massive:int;
-		private var gravity:Number = 9.8;
+		private var windForce:Number;
+		private var massive:Number;
+		private var acceleration:Number = 0;
+//		private var gravity:Number = 9.8;
 		
 		private var candyPool:PoolCandy;
 		private var candyToAnimate:Vector.<Candy>;
@@ -71,10 +74,12 @@ package
 		private var tunaPool:PoolTuna;
 		private var tunaToAnimate:Vector.<Tuna>;
 		private var tunaToAnimateLength:uint = 0;
+		private var tunaEffectRemainSeconds:Number = 0;
 		
 		private var fishBreadPool:PoolFishShapedBread;
 		private var fishBreadToAnimate:Vector.<FishShapedBread>;
 		private var fishBreadToAnimateLength:uint = 0;
+		private var fishBreadEffectRemainSeconds:Number = 0;
 		//info
 		private var distance:Number;
 		private var altitude:Number;
@@ -93,61 +98,41 @@ package
 			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onWheel);
 			
 			var physics:Box2D = new Box2D("box2d");
-//			physics.visible = true;
-			physics.gravity = new b2Vec2(0, gravity);
+			physics.visible = true;
+			physics.gravity = new b2Vec2(0, GameConstantValue.GRAVITY);
 			add(physics);
 			
 			floor = new Platform("floor", {x:1024, y:748, width:2048, height:40});
 			add(floor);
 			floor.view = new Quad(2048, 40, 0x000000);
 			
-			bg = new CitrusSprite("bg", {x:0, y:0, width: 2048, height:768 +768 });
+			bg = new CitrusSprite("bg", {x:0, y:768, width: 2048, height:768 +768 });
 			bg.view = new GameBackGround();
 			add(bg);
 
-			child = new ChildHero("child", {x:50, y:50, width:280, height:280});
-			child.view = new Cat();
-			add(child);
+//			child = new ChildHero("child", {x:50, y:50, width:280, height:280});
+//			child.view = new Cat();
+//			trace("gravity: ", child.body.GetWorld().GetGravity().y);
+//			add(child);
 //			var mass:b2MassData = new b2MassData();
 //			mass.mass = 1;
 //			child.body.SetMassData(mass);
+//			cat = new CatObject("cat", {peObject:"cat", view:"cat.png", registration:"topLeft", x:50, y:300});
+//			add(cat);
 			
-			goal = new Coin("goal", {x:900, y:600, width:79, height:79});
-			goal.onBeginContact.add(function(c:b2Contact):void{
-				trace("ginants win");
-			});
-			add(goal);
+			child = new CatObject_2("cat", {peObject:"cat", view:"cat.png", registration:"topLeft", x:50, y:300, width:280, height:280});
+			add(child);
 			
 			setting = new GameSetting();
 			this.addChild(setting);
 			setting.massive = child.body.GetMass();
-			setting.gravity = physics.gravity.y;
-			setting.force = 30;
+			setting.force = 20 * child.body.GetMass();
 			setting.degree = -45;
 			
 			info = new Information();
 			this.addChild(info);
-			angle = -70;
+//			angle = -70;
 			
-//			candyTimer = new Timer(100);
-//			candyTimer.addEventListener(TimerEvent.TIMER, createCandy);
-			
-//			var p1:Platform = new Platform("p1", {x: 874, y:151, width:300, height:40});
-//			p1.view = new Quad(300, 40, 0x000000); 
-//			add(p1);
-
-//			var mp:MovingPlatform = new MovingPlatform("moving", {x:220, y:700, width:200, height:40, startX:220, startY:700, endX:500, endY:151});
-//			add(mp);
-
-//			hero = new Hero("hero", {x:50, y:50, width:70, height:70});
-//			hero.view = new giants();
-//			hero.body.SetLinearVelocity(new b2Vec2(Math.cos(30),Math.sin(30)));
-//			add(hero);
-//			var cannon:Cannon = new Cannon("cannon", {x:50, y:50, width:70, height:70});
-//			add(cannon);
-//			var enemy:Enemy = new Enemy("enemy",
-//				{x:900, y:700, width:70, height:70, leftBound:10, rightBound:1000});
-//			add(enemy);
 		}
 		override public function destroy():void
 		{
@@ -176,19 +161,33 @@ package
 			if(launch)
 			{
 				var velocity:b2Vec2 = child.body.GetLinearVelocity();
-				velocity.x = (initForce / massive) * Math.cos(deg2rad(initDegree)) - tick * windForce * Math.cos(deg2rad(180)) / massive;
-				velocity.y = (initForce / massive) * Math.sin(deg2rad(initDegree)) + gravity * tick + tick * windForce * Math.sin(deg2rad(180)) / massive;
-				
+				if(fishBreadEffectRemainSeconds > 0)
+				{
+					acceleration += 0.3;
+//					velocity.x += 0.3 * timeDelta;
+//					velocity.y += 0.3 * timeDelta;
+//					trace(velocity.x, velocity.y);
+					fishBreadEffectRemainSeconds -= 0.1;
+					trace("fish bread: ", acceleration, fishBreadEffectRemainSeconds);
+				}else
+				{
+					acceleration = 0;
+				}
+				trace(Math.sin(deg2rad(initDegree)));
+				velocity.x = acceleration * Math.cos(deg2rad(initDegree)) + (initForce / massive) * Math.cos(deg2rad(initDegree)) + tick * windForce * Math.cos(deg2rad(180)) / massive;
+				velocity.y = acceleration * Math.sin(deg2rad(initDegree)) + (initForce / massive) * Math.sin(deg2rad(initDegree)) + GameConstantValue.GRAVITY * tick + tick * windForce * Math.sin(deg2rad(180)) / massive;
+//				Math.atan2(
 				var speedX:Number = 0;
 				var speedY:Number = 0;
-//				var distance:Number = Math.sqrt((velocity.x * velocity.x) + (velocity.y*velocity.y));
-//				var speed:Number = Math.abs(distance / tick);
-				info.speed = child.getWalkingSpeed();
+				var tickDistance:Number = Math.sqrt((velocity.x * velocity.x) + (velocity.y*velocity.y));
+				var speed:Number = Math.abs(tickDistance / tick);
+				info.speed = speed;
+//				info.speed = child.getWalkingSpeed();
 				
 				distance += velocity.x;
 				altitude -= velocity.y;
-				info.distance = distance / stage.stageWidth * HORIZONTAL_MEASURE;
-				info.altitude = altitude / stage.stageHeight * VERTICAL_MEASURE;
+				info.distance = distance / stage.stageWidth * GameConstantValue.HORIZONTAL_MEASURE;
+				info.altitude = altitude / stage.stageHeight * GameConstantValue.VERTICAL_MEASURE;
 				if(child.x < 200)
 				{
 					bg.x = bg.x;
@@ -203,31 +202,26 @@ package
 				{
 					if(child.y > 300)
 					{
-						floor.y = floor.y;
+//						floor.y = floor.y;
 						bg.y = bg.y;
 					}else
 					{
-						floor.y -= velocity.y;
+//						floor.y -= velocity.y;
 						bg.y -= velocity.y;
 						speedY = velocity.y;
-//						animateCandy(velocity.x);
 					}
 				}else
 				{
-					floor.y = floor.y < 748 ? floor.y - velocity.y : 748;
-					bg.y = bg.y > 0 ? bg.y - velocity.y : 0;
+//					trace("1",velocity.x, velocity.y);
+//					trace("2",floor.y, bg.y);
+//					floor.y = floor.y < 748 ? floor.y - velocity.y : 748;
+					bg.y = bg.y > stage.stageHeight ? bg.y - velocity.y : stage.stageHeight;
 					speedY = velocity.y;
-					if(floor.y == 748 && bg.y == 0)
-					{
-						launch = false;
-						child.body.SetLinearVelocity(new b2Vec2());
-					}
-//					if(child.onGround)
+//					if(bg.y == stage.stageHeight)
 //					{
-//						trace("on ground");
 //						launch = false;
 //						child.body.SetLinearVelocity(new b2Vec2());
-//						return;
+////						trace("3",floor.y, bg.y);
 //					}
 				}
 				animateCandy(speedX, speedY);
@@ -242,7 +236,10 @@ package
 					bg.x = 0;
 					showItem();
 				}
-				if (bg.y < 0) bg.y = -stage.stageHeight;
+				if (bg.y < 0)
+				{
+					bg.y = stage.stageHeight;
+				}
 				if (bg.y > stage.stageHeight)
 				{
 					bg.y = 0;
@@ -258,11 +255,14 @@ package
 					velocity.y = child.y > 300 ? velocity.y : 0;
 					
 				}
+				if(child.onGround)
+				{
+					launch = false;
+					
+				}
+//				child.acceleration
+				
 				child.body.SetLinearVelocity(velocity);
-				child.body.SetAngle(deg2rad(initDegree));
-//				goal.x -= velocity.x;
-				
-				
 				
 			}
 			if(CitrusEngine.getInstance().input.isDown(Keyboard.SPACE))
@@ -276,7 +276,17 @@ package
 				initDegree = setting.degree;
 				windForce = 10;
 				massive	= setting.massive;
-				gravity = setting.gravity;
+				
+				floor.x = 1024; 
+				floor.y = 748;
+				bg.x = 0;
+				bg.y = 0;
+				child.onGround = false;
+				child.x = 50;
+//				child.y = 50;
+				
+				
+//				gravity = setting.gravity;
 				
 				candyToAnimate = new Vector.<Candy>();
 				candyToAnimateLength = 0;
@@ -288,6 +298,9 @@ package
 				createCandyItemPool();
 				createTunaItemPool();
 				createFishBreadItemPool();
+				
+				showItem();
+//				child.body.SetAngularVelocity(deg2rad(90)/10);
 //				candyTimer.start();
 			}
 			if(CitrusEngine.getInstance().input.isDown(Keyboard.RIGHT))
@@ -302,36 +315,48 @@ package
 				initDegree = initDegree	< -70 ? initDegree - 11.25 : -70;
 				trace(initDegree);
 			}
+			if(CitrusEngine.getInstance().input.isDown(Keyboard.UP))
+			{
+				trace("get fish bread");
+				fishBreadEffectRemainSeconds = GameConstantValue.ITEM_MAINTENANCE_SECONDS;
+			}
 		}
 		
 		private function showItem():void
 		{
-			var random:uint = Math.random() * 100;
-			if(random < 42)
+			var loop:Boolean = true;
+			while(loop)
 			{
-				var candyToTrack:Candy = candyPool.checkOut();
-				candyToTrack.x = child.x + stage.stageWidth + Math.random() *300;
-				candyToTrack.y = 50 + Math.random() * 250;
-				
-				candyToAnimate[candyToAnimateLength++] = candyToTrack;
-			}
-			if(random < 2)
-			{
-				trace("tuna");
-				var tunaToTrack:Tuna = tunaPool.checkOut();
-				tunaToTrack.x = child.x + stage.stageWidth + Math.random() *300;
-				tunaToTrack.y = 50 + Math.random() * 250;
-				
-				tunaToAnimate[tunaToAnimateLength++] = tunaToTrack;
-			}
-			if(random < 4)
-			{
-				trace("fishBread");
-				var fishBreadToTrack:FishShapedBread = fishBreadPool.checkOut();
-				fishBreadToTrack.x = child.x + stage.stageWidth + Math.random() *300;
-				fishBreadToTrack.y = 50 + Math.random() * 250;
-				
-				fishBreadToAnimate[fishBreadToAnimateLength++] = fishBreadToTrack;
+				var random:uint = Math.random() * 100;
+				if(random < GameConstantValue.CANDY_LIKEHOOD)
+				{
+					trace("candy");
+					var candyToTrack:Candy = candyPool.checkOut();
+					candyToTrack.x = child.x + stage.stageWidth + Math.random() *(stage.stageWidth/2);
+					candyToTrack.y = 50 + Math.random() * (stage.stageHeight /2);
+					candyToAnimate[candyToAnimateLength++] = candyToTrack;
+				}
+				else
+				{
+					trace("generate done");
+					loop = false;
+				}
+				if(random < GameConstantValue.TUNA_LIKEHOOD)
+				{
+					trace("tuna");
+					var tunaToTrack:Tuna = tunaPool.checkOut();
+					tunaToTrack.x = child.x + stage.stageWidth + Math.random() *300;
+					tunaToTrack.y = 50 + Math.random() * 250;
+					tunaToAnimate[tunaToAnimateLength++] = tunaToTrack;
+				}
+				if(random < GameConstantValue.FISH_BREAD_LIKEHOOD)
+				{
+					trace("fishBread");
+					var fishBreadToTrack:FishShapedBread = fishBreadPool.checkOut();
+					fishBreadToTrack.x = child.x + stage.stageWidth + Math.random() *300;
+					fishBreadToTrack.y = 50 + Math.random() * 250;
+					fishBreadToAnimate[fishBreadToAnimateLength++] = fishBreadToTrack;
+				}
 			}
 			
 		}
@@ -388,16 +413,19 @@ package
 		}
 		private function createCandyItemPool():void
 		{
-			candyPool = new PoolCandy(createCandy, cleanCandy);
+			if(candyPool == null)
+				candyPool = new PoolCandy(createCandy, cleanCandy);
 //			candyPool.item
 		}
 		private function createTunaItemPool():void
 		{
-			tunaPool = new PoolTuna(createTuna, cleanTuna);
+			if(tunaPool == null)
+				tunaPool = new PoolTuna(createTuna, cleanTuna);
 		}
 		private function createFishBreadItemPool():void
 		{
-			fishBreadPool = new PoolFishShapedBread(createFishBread, cleanFishBread);
+			if(fishBreadPool == null)
+				fishBreadPool = new PoolFishShapedBread(createFishBread, cleanFishBread);
 		}
 		private function cleanCandy($candy:Candy):void
 		{
@@ -446,13 +474,18 @@ package
 		{
 			trace("get candy");
 		}
+		//during five seconds income game money will twice than normal situation 
+		//At the first time, multiply 2, second multiply 3, third multiply 5, 
+		//after forth no increase multiple value refresh time to five seconds 
 		private function contactTuna(c:b2Contact):void
 		{
 			trace("get tuna");
 		}
+		//during five seconds give more speed 0.3 * timeDelta
 		private function contactFishBread(c:b2Contact):void
 		{
 			trace("get fish bread");
+			fishBreadEffectRemainSeconds = GameConstantValue.ITEM_MAINTENANCE_SECONDS;
 		}
 		private function disposeItemTemporarily($animateId:uint, $object:Object):void
 		{

@@ -166,7 +166,7 @@ package
 			view.camera.offset= new MathVector(stage.stageWidth /2 /scaleX, stage.stageHeight /2 /scaleY);
 			view.camera.bounds = new Rectangle(0, 0, 1550 * scaleX, 450 * scaleY);
 		}
-		/*
+		
 		override public function update(timeDelta:Number):void
 		{
 			//			vx = (initForce/massive) * Math.cos(deg2rad(-initDegree)) + 0.0015 * windForce * Math.cos(deg2rad(180)) / massive;
@@ -355,7 +355,8 @@ package
 				fishBreadEffectRemainSeconds = GameConstantValue.ITEM_MAINTENANCE_SECONDS;
 			}
 		}
-		*/
+		
+		/*
 		override public function update(timeDelta:Number):void
 		{
 //			vx = (initForce/massive) * Math.cos(deg2rad(-initDegree)) + 0.0015 * windForce * Math.cos(deg2rad(180)) / massive;
@@ -524,7 +525,7 @@ package
 				fishBreadEffectRemainSeconds = GameConstantValue.ITEM_MAINTENANCE_SECONDS;
 			}
 		}
-		
+		*/
 		private function showItem():void
 		{
 			var loop:Boolean = true;

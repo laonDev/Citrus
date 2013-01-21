@@ -15,7 +15,15 @@ package
 		public static const Sky1:Class;
 		[Embed(source="sky2.png")]
 		public static const Sky2:Class;
-
+		[Embed(source="../assets/bg1.png")]
+		public static const BG1:Class;
+		[Embed(source="../assets/bg2.png")]
+		public static const BG2:Class;
+	
+		[Embed(source="../assets/Background.png")]
+		public static const BackGroundTexture:Class
+		[Embed(source="../assets/Background.xml", mimeType="application/octet-stream")]
+		public static const BackGroundXml:Class
 //		[Embed(source="../assets/welcome_playButton.png")]
 //		public static const PlayButton:Class;
 //		[Embed(source="../assets/Up.png")]
@@ -45,9 +53,9 @@ package
 		{
 			if(gameTextureAtlas == null)
 			{
-//				var texture:Texture = getTexture("AtlasTextureGame");
-//				var xml:XML = XML(new AtlasXmlGame());
-//				gameTextureAtlas = new TextureAtlas(texture, xml);
+				var texture:Texture = getTexture("BackGroundTexture");
+				var xml:XML = XML(new BackGroundXml());
+				gameTextureAtlas = new TextureAtlas(texture, xml);
 			}
 			return gameTextureAtlas;
 		}

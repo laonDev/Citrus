@@ -26,10 +26,10 @@ package
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			if(_layer == 1)
 			{
-				upperImage1 = new Image(Assets.getTexture("Sky1"));
-				upperImage2 = new Image(Assets.getTexture("Sky2"));
-				lowerImage1 = new Image(Assets.getTexture("Sky1"));
-				lowerImage2 = new Image(Assets.getTexture("Sky2"));
+				upperImage1 = new Image(Assets.getTexture("BG2"));
+				upperImage2 = new Image(Assets.getTexture("BG2"));
+				lowerImage1 = new Image(Assets.getTexture("BG1"));
+				lowerImage2 = new Image(Assets.getTexture("BG1"));
 //				upperImage1 = new Image(Assets.getTexture("Sky" + _layer));
 //				upperImage2 = new Image(Assets.getTexture("Sky" + _layer));
 //				lowerImage1 = new Image(Assets.getTexture("Sky" + _layer));

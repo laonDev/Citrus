@@ -34,9 +34,11 @@ package
 	{
 		[Embed(source="sky1.png")]
 		private var Sky1:Class;
-		
-		[Embed(source="sky2.png")]
-		private var Sky2:Class;
+//		
+//		[Embed(source="sky2.png")]
+//		private var Sky2:Class;
+//		[Embed(source="BG.png")]
+//		private var BG:Class;
 		
 		[Embed(source="cat.png")]
 		private var Cat:Class;
@@ -55,17 +57,17 @@ package
 		private var angle:int;
 		
 		private var floor:Platform;
-		private var lowerBg1:CitrusSprite;
-		private var lowerBg2:CitrusSprite;
-		private var upperBg1:CitrusSprite;
-		private var upperBg2:CitrusSprite;
+//		private var lowerBg1:CitrusSprite;
+//		private var lowerBg2:CitrusSprite;
+//		private var upperBg1:CitrusSprite;
+//		private var upperBg2:CitrusSprite;
 		private var gameBg:GameBackGround;
 		private var setting:GameSetting;
 		private var info:Information;
 		
 		private var hero:Hero;
 //		private var child:ChildHero;
-		private var bg:CitrusSprite;
+		private var bg:GameBackGround;
 		private var child:CatObject_2;
 		private var mobileInput:MobileInput;
 		private var goal:Coin;
@@ -115,22 +117,22 @@ package
 			add(floor);
 			floor.view = new Quad(2048, 40, 0x000000);
 			
-			bg = new CitrusSprite("bg", {x:0, y:768, width: 2048, height:768 +768 });
-			bg.view = new GameBackGround();
+			bg = new GameBackGround("bg", {x:0, y:0, width: 1429, height:2456 });
+//			bg.view = new GameBackGround();
 			add(bg);
 
-			lowerBg1= new CitrusSprite("lowerBg1", {x:0, y:0, width: 1024, height:768});
-			lowerBg1.view = new Sky1();
-			add(lowerBg1);
-			lowerBg2 = new CitrusSprite("lowerBg2", {x:stage.stageWidth, y:0, width: 1024, height:768});
-			lowerBg2.view = new Sky2();
-			add(lowerBg2);
-			upperBg1= new CitrusSprite("upperBg1", {x:0, y:-stage.stageHeight, width: 1024, height:768});
-			upperBg1.view = new Sky1();
-			add(upperBg1);
-			upperBg2 = new CitrusSprite("upperBg2", {x:stage.stageWidth, y:-stage.stageHeight, width: 1024, height:768});
-			upperBg2.view = new Sky2();
-			add(upperBg2);
+//			lowerBg1= new CitrusSprite("lowerBg1", {x:0, y:0, width: 1024, height:768});
+//			lowerBg1.view = new Sky1();
+//			add(lowerBg1);
+//			lowerBg2 = new CitrusSprite("lowerBg2", {x:stage.stageWidth, y:0, width: 1024, height:768});
+//			lowerBg2.view = new Sky1();
+//			add(lowerBg2);
+//			upperBg1= new CitrusSprite("upperBg1", {x:0, y:-stage.stageHeight, width: 1024, height:768});
+//			upperBg1.view = new Sky1();
+//			add(upperBg1);
+//			upperBg2 = new CitrusSprite("upperBg2", {x:stage.stageWidth, y:-stage.stageHeight, width: 1024, height:768});
+//			upperBg2.view = new Sky2();
+//			add(upperBg2);
 
 			child = new CatObject_2("cat", {peObject:"cat", view:"cat.png", registration:"topLeft", x:50, y:300, width:280, height:280});
 			add(child);
@@ -179,14 +181,14 @@ package
 			}
 			if(launch)
 			{
-				var current_velocity:b2Vec2 = child.body.GetLinearVelocity();
+				var currentVelocity:b2Vec2 = child.body.GetLinearVelocity();
 //				trace(current_velocity.x, current_velocity.y);
 //				trace(child.body.GetLinearVelocity().x);
 				if(fishBreadEffectRemainSeconds > 0)
 				{
 					acceleration += 0.25;
-					current_velocity.x += acceleration * Math.cos(deg2rad(initDegree));
-					current_velocity.y += acceleration * Math.sin(deg2rad(initDegree));
+					currentVelocity.x += acceleration * Math.cos(deg2rad(initDegree));
+					currentVelocity.y += acceleration * Math.sin(deg2rad(initDegree));
 					fishBreadEffectRemainSeconds -= 0.5;
 					trace("fish bread: ", acceleration, fishBreadEffectRemainSeconds);
 				}else
@@ -197,26 +199,27 @@ package
 //				velocity.y = acceleration * Math.sin(deg2rad(initDegree)) + (initForce / massive) * Math.sin(deg2rad(initDegree)) + GameConstantValue.GRAVITY * tick + tick * windForce * Math.sin(deg2rad(180)) / massive;
 				var speedX:Number = 0;
 				var speedY:Number = 0;
-				var tickDistance:Number = Math.sqrt((current_velocity.x * current_velocity.x) + (current_velocity.y*current_velocity.y));
+				var tickDistance:Number = Math.sqrt((currentVelocity.x * currentVelocity.x) + (currentVelocity.y*currentVelocity.y));
 				var speed:Number = Math.abs(tickDistance / tick);
 				info.speed = speed;
 //				info.speed = child.getWalkingSpeed();
 				
-				distance += current_velocity.x;
-				altitude += -(current_velocity.y);
+				distance += currentVelocity.x;
+				altitude += -(currentVelocity.y);
 				info.distance = distance / stage.stageWidth * GameConstantValue.HORIZONTAL_MEASURE;
 				info.altitude = altitude / stage.stageHeight * GameConstantValue.VERTICAL_MEASURE;
 				
-				if(child.x + stage.stageWidth > lowerBg1.x + lowerBg1.width)
-				{
-					lowerBg2.x = lowerBg1.x + lowerBg1.width;
-					showItem();
-				}
-				if(child.x + stage.stageWidth > lowerBg2.x + lowerBg2.width)
-				{
-					showItem();
-					lowerBg1.x = lowerBg2.x + lowerBg2.width;
-				}
+				bg.speedX = child.x + currentVelocity.x;
+//				if(child.x + stage.stageWidth > lowerBg1.x + lowerBg1.width)
+//				{
+//					lowerBg2.x = lowerBg1.x + lowerBg1.width;
+//					showItem();
+//				}
+//				if(child.x + stage.stageWidth > lowerBg2.x + lowerBg2.width)
+//				{
+//					showItem();
+//					lowerBg1.x = lowerBg2.x + lowerBg2.width;
+//				}
 //				if(child.y + stage.stageHeight > lowerBg1.y + lowerBg1.height)
 //					upperBg1.y = lowerBg1.y - lowerBg1.height;
 //				if(child.y + stage.stageHeight > upperBg1.y + upperBg1.height)

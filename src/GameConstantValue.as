@@ -4,8 +4,8 @@ package
 	{
 		//item generate likehood
 		public static const CANDY_LIKEHOOD:int = 41;
-		public static const TUNA_LIKEHOOD:int = 2;
-		public static const FISH_BREAD_LIKEHOOD:int = 4;
+		public static const TUNA_LIKEHOOD:int = 10;
+		public static const FISH_BREAD_LIKEHOOD:int = 10;
 		
 		public static const ITEM_MAINTENANCE_SECONDS:Number = 5;
 		public static const BOOSTER_SPEED:Number = 0.3;

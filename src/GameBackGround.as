@@ -42,8 +42,9 @@ package
 		override public function update(timeDelta:Number):void
 		{
 			super.update(timeDelta);
-//			bgLayer1.x -= _speedX;
-			bgLayer1.x -= _speedX;
+//			trace(bgLayer1.y, speedY);
+			bgLayer1.x -= Math.ceil(_speedX);
+			bgLayer1.y -= Math.ceil(_speedY);
 			if(bgLayer1.x > 0) bgLayer1.x = -_ce.stage.stageWidth;
 			if(bgLayer1.x < -_ce.stage.stageWidth) bgLayer1.x = 0;
 //			bgLayer1.y += _speedY;

@@ -23,7 +23,7 @@
         <style type="text/css" media="screen"> 
             html, body  { height:100%; }
             body { margin:0; padding:0; overflow:auto; text-align:center; 
-                   background-color: #ffffff; }   
+                   background-color: #cccccc; }   
             object:focus { outline:none; }
             #flashContent { display:none; }
         </style>
@@ -43,16 +43,17 @@
             var flashvars = {};
             var params = {};
             params.quality = "high";
-            params.bgcolor = "#ffffff";
+            params.bgcolor = "#cccccc";
             params.allowscriptaccess = "sameDomain";
             params.allowfullscreen = "true";
+            params.wmode = "direct";
             var attributes = {};
             attributes.id = "Citrus";
             attributes.name = "Citrus";
             attributes.align = "middle";
             swfobject.embedSWF(
                 "Citrus.swf", "flashContent", 
-                "100%", "100%", 
+                "1440", "768", 
                 swfVersionStr, xiSwfUrlStr, 
                 flashvars, params, attributes);
             // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
@@ -77,16 +78,16 @@
         </div>
         
         <noscript>
-            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="Citrus">
+            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="1440" height="768" id="Citrus">
                 <param name="movie" value="Citrus.swf" />
                 <param name="quality" value="high" />
-                <param name="bgcolor" value="#ffffff" />
+                <param name="bgcolor" value="#cccccc" />
                 <param name="allowScriptAccess" value="sameDomain" />
                 <param name="allowFullScreen" value="true" />
                 <!--[if !IE]>-->
-                <object type="application/x-shockwave-flash" data="Citrus.swf" width="100%" height="100%">
+                <object type="application/x-shockwave-flash" data="Citrus.swf" width="1440" height="768">
                     <param name="quality" value="high" />
-                    <param name="bgcolor" value="#ffffff" />
+                    <param name="bgcolor" value="#cccccc" />
                     <param name="allowScriptAccess" value="sameDomain" />
                     <param name="allowFullScreen" value="true" />
                 <!--<![endif]-->

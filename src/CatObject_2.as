@@ -3,6 +3,7 @@ package {
     import Box2D.Collision.Shapes.b2PolygonShape;
     import Box2D.Common.Math.b2Vec2;
     
+    import citrus.objects.Box2DPhysicsObject;
     import citrus.objects.platformer.box2d.Hero;
 
 	/**
@@ -18,7 +19,9 @@ package {
 		public var peObject:String = "";
 
 		private var _tab:Array;
+		private var _heightBuffer:Number = 0;
 		public var _mobileInput:MobileInput;
+		
 
 		public function CatObject_2(name:String, params:Object = null) {
 
@@ -27,6 +30,16 @@ package {
 			this.maxVelocity = 100;
 //			_mobileInput = new MobileInput();
 //			_mobileInput
+		}
+
+		public function get heightBuffer():Number
+		{
+			return _heightBuffer;
+		}
+
+		public function set heightBuffer(value:Number):void
+		{
+			_heightBuffer = value;
 		}
 
 		override public function destroy():void {
@@ -39,8 +52,27 @@ package {
 			if(this.body.GetLinearVelocity().x + this.x > 200)
 				this.x = 200;
 //			trace(this.body.GetLinearVelocity().y);
-//			if(this.body.GetLinearVelocity().y < 0 && this.body.GetLinearVelocity().y + this.y < 300)
-//				this.y = 300;
+			if(this.body.GetLinearVelocity().y < 0 && this.body.GetLinearVelocity().y + this.y < 300)
+			{
+				this.y = 300;
+				_heightBuffer += this.body.GetLinearVelocity().y;
+				trace("up",_heightBuffer, this.body.GetLinearVelocity().y);
+			}
+			if(this.body.GetLinearVelocity().y > 0 && _heightBuffer < 0)
+			{
+				this.y = 300;
+				_heightBuffer += this.body.GetLinearVelocity().y;
+//				this.x += this.body.GetLinearVelocity().x;
+				trace("down",_heightBuffer, this.body.GetLinearVelocity().y);
+			}else
+			{
+//				this.body.SetLinearVelocity(new b2Vec2(this.body.GetLinearVelocity().x, 4));
+//				trace("falling", this.body.GetLinearVelocity().y);
+			}
+			
+//			var game:GameBackGround = _ce.getChildByName("bg") as GameBackGround;
+//			trace(game);
+//			if(this.body.GetLinearVelocity().y > 0 && _ce.getChildByName("bg")
 //			if(this.body.GetLinearVelocity().y + this.y < 300)
 //				this.y = 300;
 			

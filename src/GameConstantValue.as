@@ -7,7 +7,8 @@ package
 		public static const TUNA_LIKEHOOD:int = 10;
 		public static const FISH_BREAD_LIKEHOOD:int = 10;
 		
-		public static const ITEM_MAINTENANCE_SECONDS:Number = 5;
+		public static const FISH_BREAD_SECONDS:Number = 5;
+		public static const TUNA_BOOSTER_SECONDS:Number = 3
 		public static const BOOSTER_SPEED:Number = 0.3;
 		
 		//measure of screen in meter 

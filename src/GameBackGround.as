@@ -2,6 +2,7 @@ package
 {
 	import citrus.objects.CitrusSprite;
 	
+	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
 	
@@ -9,6 +10,10 @@ package
 	{
 		private var _container:Sprite;
 		private var bgLayer1:BGLayer;
+		private var buildingLayer2:BGLayer;
+		private var buildingLayer3:BGLayer;
+		private var buildingLayer4:BGLayer;
+		
 		private var _speedX:Number = 0;
 		private var _speedY:Number = 0;
 		private var _gamePaused:Boolean = false;
@@ -22,10 +27,28 @@ package
 			_view = _container;
 			
 			bgLayer1 = new BGLayer(1);
+			bgLayer1.parallaxDepth = 0.2;
 			_container.addChild(bgLayer1);
+			
+			buildingLayer4 = new BGLayer(4);
+			buildingLayer4.y -= 80;
+			buildingLayer4.parallaxDepth = 0.2;
+			_container.addChild(buildingLayer4);
+			
+			buildingLayer3 = new BGLayer(3);
+			buildingLayer3.y -= 50;
+			buildingLayer3.parallaxDepth = 0.5;
+			_container.addChild(buildingLayer3);
+			
+			buildingLayer2 = new BGLayer(2);
+			buildingLayer2.parallaxDepth = 0.7;
+			_container.addChild(buildingLayer2);
+			
+			
+			trace(buildingLayer4.y, buildingLayer3.y, buildingLayer2.y);
+			
+			
 		}
-
-		
 		
 //		private function onEnterFrame(e:Event):void
 //		{
@@ -41,24 +64,33 @@ package
 //		}
 		override public function update(timeDelta:Number):void
 		{
-			super.update(timeDelta);
-//			trace(bgLayer1.y, speedY);
-			bgLayer1.x -= Math.ceil(_speedX);
-			bgLayer1.y -= Math.ceil(_speedY);
+//			super.update(timeDelta);
+			
+			bgLayer1.x -= Math.ceil(_speedX * bgLayer1.parallaxDepth);
+			bgLayer1.y -= Math.ceil(_speedY * bgLayer1.parallaxDepth);
 			if(bgLayer1.x > 0) bgLayer1.x = -_ce.stage.stageWidth;
 			if(bgLayer1.x < -_ce.stage.stageWidth) bgLayer1.x = 0;
-//			bgLayer1.y += _speedY;
-//			trace(_isGround);
-//			bgLayer1.y = _speedY;
-//			if(bgLayer1.y <= 0)
-//			{
-//				bgLayer1.y = 0;
-//				_isGround = true; 
-//			}else
-//			{
-//				_isGround = false;
-//			}
-//			if(bgLayer1.y < -stage
+			if(bgLayer1.y < 0) bgLayer1.y = 0;
+			
+			buildingLayer2.x -= Math.ceil(_speedX * buildingLayer2.parallaxDepth);
+			buildingLayer2.y -= Math.ceil(_speedY * buildingLayer2.parallaxDepth);
+			if(buildingLayer2.x > 0) buildingLayer2.x = -_ce.stage.stageWidth;
+			if(buildingLayer2.x < -_ce.stage.stageWidth) buildingLayer2.x = 0;
+			if(buildingLayer2.y < 0) buildingLayer2.y = 0;
+			
+			buildingLayer3.x -= Math.ceil(_speedX * buildingLayer3.parallaxDepth);
+			buildingLayer3.y -= Math.ceil(_speedY * buildingLayer3.parallaxDepth);
+			if(buildingLayer3.x > 0) buildingLayer3.x = -_ce.stage.stageWidth;
+			if(buildingLayer3.x < -_ce.stage.stageWidth) buildingLayer3.x = 0;
+			if(buildingLayer3.y < -50) buildingLayer3.y = -50;
+			
+			buildingLayer4.x -= Math.ceil(_speedX * buildingLayer4.parallaxDepth);
+			buildingLayer4.y -= Math.ceil(_speedY * buildingLayer4.parallaxDepth);
+			if(buildingLayer4.x > 0) buildingLayer4.x = -_ce.stage.stageWidth;
+			if(buildingLayer4.x < -_ce.stage.stageWidth) buildingLayer4.x = 0;
+			if(buildingLayer4.y < -80) buildingLayer4.y = -80;
+			
+			
 		}
 		
 		public function get gamePaused():Boolean

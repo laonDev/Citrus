@@ -51,19 +51,18 @@ package {
 		{
 			if(this.body.GetLinearVelocity().x + this.x > 200)
 				this.x = 200;
-//			trace(this.body.GetLinearVelocity().y);
 			if(this.body.GetLinearVelocity().y < 0 && this.body.GetLinearVelocity().y + this.y < 300)
 			{
 				this.y = 300;
 				_heightBuffer += this.body.GetLinearVelocity().y;
-				trace("up",_heightBuffer, this.body.GetLinearVelocity().y);
+//				trace("up",_heightBuffer, this.body.GetLinearVelocity().y);
 			}
 			if(this.body.GetLinearVelocity().y > 0 && _heightBuffer < 0)
 			{
 				this.y = 300;
 				_heightBuffer += this.body.GetLinearVelocity().y;
 //				this.x += this.body.GetLinearVelocity().x;
-				trace("down",_heightBuffer, this.body.GetLinearVelocity().y);
+//				trace("down",_heightBuffer, this.body.GetLinearVelocity().y);
 			}else
 			{
 //				this.body.SetLinearVelocity(new b2Vec2(this.body.GetLinearVelocity().x, 4));

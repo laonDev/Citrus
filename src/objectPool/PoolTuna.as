@@ -13,7 +13,7 @@ package objectPool
 		private var list:Vector.<Tuna> = new Vector.<Tuna>();
 		private var disposed:Boolean = false;
 		
-		public function PoolTuna($create:Function, $clean:Function = null, $minSize:int = 30, $maxSize:int = 100)
+		public function PoolTuna($create:Function, $clean:Function = null, $minSize:int = 50, $maxSize:int = 100)
 		{
 			create = $create;
 			clean = $clean;

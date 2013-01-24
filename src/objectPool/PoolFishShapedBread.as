@@ -1,6 +1,5 @@
 package objectPool
 {
-	import item.Candy;
 	import item.FishShapedBread;
 
 	public class PoolFishShapedBread
@@ -16,7 +15,7 @@ package objectPool
 		private var list:Vector.<FishShapedBread> = new Vector.<FishShapedBread>();
 		private var disposed:Boolean = false;
 		
-		public function PoolFishShapedBread($create:Function, $clean:Function = null, $minSize:int = 30, $maxSize:int = 100)
+		public function PoolFishShapedBread($create:Function, $clean:Function = null, $minSize:int = 50, $maxSize:int = 100)
 		{
 			create = $create;
 			clean = $clean;

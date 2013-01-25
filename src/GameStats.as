@@ -2,20 +2,19 @@ package
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
+	import flash.utils.setTimeout;
 	
 	import Box2D.Common.Math.b2Vec2;
 	import Box2D.Dynamics.Contacts.b2Contact;
 	
 	import citrus.core.CitrusEngine;
 	import citrus.core.starling.StarlingState;
-	import citrus.datastructures.PoolObject;
 	import citrus.input.controllers.Keyboard;
 	import citrus.math.MathVector;
-	import citrus.objects.CitrusSprite;
-	import citrus.objects.platformer.box2d.Coin;
-	import citrus.objects.platformer.box2d.Hero;
 	import citrus.objects.platformer.box2d.Platform;
 	import citrus.physics.box2d.Box2D;
+	import citrus.view.starlingview.AnimationSequence;
+	import citrus.view.starlingview.StarlingArt;
 	
 	import item.Candy;
 	import item.FishShapedBread;
@@ -27,6 +26,8 @@ package
 	
 	import starling.display.Image;
 	import starling.utils.deg2rad;
+	
+	import states.GameResultState;
 	
 	public class GameStats extends StarlingState
 	{
@@ -56,20 +57,12 @@ package
 		private var angle:int;
 		
 		private var floor:Platform;
-//		private var lowerBg1:CitrusSprite;
-//		private var lowerBg2:CitrusSprite;
-//		private var upperBg1:CitrusSprite;
-//		private var upperBg2:CitrusSprite;
 		private var gameBg:GameBackGround;
-		private var setting:GameSetting;
 		private var info:Information;
 		
-//		private var hero:Hero;
-//		private var child:ChildHero;
 		private var bg:GameBackGround;
 		private var child:CatObject_2;
 		private var mobileInput:MobileInput;
-//		private var goal:Coin;
 		private var launch:Boolean = false;
 		private  var tick:Number;
 		private var initForce:Number;
@@ -77,10 +70,11 @@ package
 		private var windForce:Number;
 		private var massive:Number;
 		private var acceleration:Number = 0;
-//		private var gravity:Number = 9.8;
+		private var prevX:Number;
+		private var prevY:Number;
+		
 		
 		private var itemFlag:Boolean = false;
-		private var _poolCandy:PoolObject;
 		private var candyPool:PoolCandy;
 		private var candyToAnimate:Vector.<Candy>;
 		private var candyToAnimateLength:uint = 0;
@@ -97,6 +91,9 @@ package
 		//info
 		private var distance:Number;
 		private var altitude:Number;
+		private var candyCount:int;
+		private var fishBreadCount:int;
+		private var tunaCount:int;
 		
 		public function GameStats()
 		{
@@ -112,7 +109,7 @@ package
 			mobileInput.initialize();
 			
 			var physics:Box2D = new Box2D("box2d");
-			physics.visible = true;
+//			physics.visible = true;
 			physics.gravity = new b2Vec2(0, GameConstantValue.GRAVITY);
 			add(physics);
 			
@@ -122,20 +119,22 @@ package
 			bg = new GameBackGround("bg", {x:0, y:0, width: 1429, height:2456 });
 			add(bg);
 
-
+			var childAni:AnimationSequence = new AnimationSequence(Assets.getAtlas(), 
+				["cat_boost", "cat_decrease", "cat_flying", "cat_increase", "cat_landing", "cat_ready"],
+				"cat_ready", 30, true);
+			StarlingArt.setLoopAnimations(["cat_flying"]);
 			child = new CatObject_2("cat", {peObject:"cat", registration:"topLeft", x:50, y:300, width:100, height:100});
-			child.view =new Image(Assets.getAtlas().getTexture("cat_flying"));
+			child.view = childAni;
+			child.animation = "cat_ready";
+//			child.view =new Image(Assets.getAtlas().getTexture("cat_flying"));
 			add(child);
-			
-			setting = new GameSetting();
-			this.addChild(setting);
-			setting.massive = child.body.GetMass();
-			setting.force = 40 * child.body.GetMass();	
-			setting.degree = -45;
-			
+						
 			info = new Information();
 			this.addChild(info);
-//			angle = -70;
+			candyCount = 0;
+			tunaCount = 0;
+			fishBreadCount = 0;
+			
 			candyToAnimate = new Vector.<Candy>();
 			candyToAnimateLength = 0;
 			tunaToAnimate = new Vector.<Tuna>();
@@ -143,19 +142,22 @@ package
 			fishBreadToAnimate = new Vector.<FishShapedBread>();
 			fishBreadToAnimateLength = 0;
 			
-			_poolCandy = new PoolObject(Candy, 100, 5, true);
 			createCandyItemPool();
 			createTunaItemPool();
 			createFishBreadItemPool();
 			
-//			this.view.setupCamera(child, new MathVector(stage.stageWidth, stage.stageHeight), new Rectangle(0, 0, stage.stageWidth * 100, stage.stageHeight * 100), new MathVector(.25, .25));
-//			this.view.camera.cameraLensHeight *= 100;
-//			this.view.camera.cameraLensWidth *= 100;
+			this.view.setupCamera(child, new MathVector(stage.stageWidth, stage.stageHeight), new Rectangle(0, 0, stage.stageWidth * 100, stage.stageHeight * 100), new MathVector(.25, .25));
 		}
 		override public function destroy():void
 		{
 			mobileInput.destroy();
 			
+		}
+		public function setValue($massive:int, $force:int, $degree:int):void
+		{
+			massive	= $massive;
+			initForce = $force;
+			initDegree = $degree;
 		}
 		private function onWheel(e:MouseEvent):void
 		{
@@ -164,8 +166,8 @@ package
 			scaleX = e.delta > 0? scaleX + 0.03 : scaleX - 0.03;
 			scaleY = scaleX;
 			
-			view.camera.offset= new MathVector(stage.stageWidth /2 /scaleX, stage.stageHeight /2 /scaleY);
-			view.camera.bounds = new Rectangle(0, 0, 1550 * scaleX, 450 * scaleY);
+			view.cameraOffset= new MathVector(stage.stageWidth /2 /scaleX, stage.stageHeight /2 /scaleY);
+			view.cameraBounds= new Rectangle(0, 0, 1550 * scaleX, 450 * scaleY);
 		}
 		
 		override public function update(timeDelta:Number):void
@@ -179,20 +181,31 @@ package
 			if(launch)
 			{
 				var currentVelocity:b2Vec2 = child.body.GetLinearVelocity();
-				currentVelocity.x = (initForce/massive) * Math.cos(deg2rad(initDegree)) + tick * windForce * Math.cos(deg2rad(180)) / massive;
-				currentVelocity.y = (initForce/massive) * Math.sin(deg2rad(initDegree)) + GameConstantValue.GRAVITY * tick + tick * windForce * Math.sin(deg2rad(180)) / massive;
+				var diffX:Number = child.x - prevX;
+				var diffY:Number = child.y - prevY;
+				var targetDegree:int = Math.atan2(diffY, diffX) *180 / Math.PI;
+				if(initDegree > targetDegree)
+					targetDegree = initDegree;
+				if(targetDegree == initDegree)
+					child.animation = "cat_flying";
+				initDegree = targetDegree;
+				trace("target degree", targetDegree);
+				currentVelocity.x = (initForce/massive) * Math.cos(deg2rad(targetDegree)) + tick * windForce * Math.cos(deg2rad(180)) / massive;
+				currentVelocity.y = (initForce/massive) * Math.sin(deg2rad(targetDegree)) + GameConstantValue.GRAVITY * tick + tick * windForce * Math.sin(deg2rad(180)) / massive;
 				if(boosterEffectRemainSeconds > 0)
 				{
 					var booster:b2Vec2 = new b2Vec2();
-					acceleration += 5;
+					acceleration += 1;
 					booster.x = acceleration * Math.cos(deg2rad(0));
 					booster.y = acceleration * Math.sin(deg2rad(0));
 					boosterEffectRemainSeconds -= 0.1;
 					currentVelocity.Add(booster);
+					child.animation = "cat_boost";
 					trace("fish bread: ", acceleration, booster.x, booster.y);
 				}else
 				{
 					acceleration = 0;
+					child.animation = "cat_flying";
 				}
 				var speedX:Number = 0;
 				var speedY:Number = 0;
@@ -209,6 +222,8 @@ package
 				bg.speedX = speedX = currentVelocity.x;
 				if(currentVelocity.y < 0) //상승
 				{
+					if(child.animation == "cat_ready")
+						child.animation = "cat_increase";
 					if(child.y <= 300)
 					{
 						bg.speedY = currentVelocity.y;
@@ -216,6 +231,7 @@ package
 					}
 				}else // 하강
 				{
+					child.animation = "cat_decrease";
 					if(child.heightBuffer < 0)
 					{
 						bg.speedY = currentVelocity.y;
@@ -237,12 +253,14 @@ package
 					launch = false;
 					bg.speedX = 0;
 					bg.speedY = 0;
-					gameState = GameConstantValue.GAME_STATE_OVER;
+					child.animation = "cat_landing";
+					setTimeout(gameEnd, 2000);
 				}
 				animateCandy(speedX, speedY);
 				animateTuna(speedX, speedY);
 				animateFishBread(speedX, speedY);
 				child.body.SetLinearVelocity(currentVelocity);
+//				child.body.SetAngle(deg2rad(targetDegree));
 			}
 			
 			floor.x = child.x;
@@ -255,23 +273,22 @@ package
 				tick = 0;
 				distance = 0;
 				altitude = 0;
-				initForce = setting.force;
-				initDegree = setting.degree;
-				windForce = 10;
+				
+				windForce = 5;
 				acceleration = 0;
-				massive	= setting.massive;
 				
 				bg.x = 0;
 				bg.y = 0;
 				bg.isGround = false;
 				child.onGround = false;
-				child.x = 50;
-				
+				child.x = prevX = 50;
+				prevY = child.y;
 				var velocity:b2Vec2;
 				velocity = child.body.GetLinearVelocity();
 				velocity.x = acceleration * Math.cos(deg2rad(initDegree)) + (initForce / massive) * Math.cos(deg2rad(initDegree));
 				velocity.y = acceleration * Math.sin(deg2rad(initDegree)) + (initForce / massive) * Math.sin(deg2rad(initDegree));
 				child.body.SetLinearVelocity(velocity);
+				
 				
 				clearItem();
 				showItem();
@@ -295,7 +312,14 @@ package
 				boosterEffectRemainSeconds = GameConstantValue.FISH_BREAD_SECONDS;
 			}
 		}
-		
+		private function gameEnd():void
+		{
+			gameState = GameConstantValue.GAME_STATE_OVER;
+			var gameResult:GameResultState = new GameResultState();
+			CitrusEngine.getInstance().state = gameResult;
+			gameResult.setValue(candyCount, tunaCount, fishBreadCount, info.distance);
+			this.destroy();
+		}
 		
 		private function showItem():void
 		{
@@ -312,9 +336,9 @@ package
 				if(candyToTrack == null)
 					return;
 				candyToTrack.x = child.x + stage.stageWidth + Math.random() * (stage.stageWidth /2) + offsetX;
-				candyToTrack.y = 50 + Math.random() * (bg.height * 0.6);
+				candyToTrack.y = 50 + Math.random() * (bg.height /2) - stage.stageHeight;
 				candyToAnimate[candyToAnimateLength++] = candyToTrack;
-//				trace("candy", candyToTrack.x, candyToTrack.y);
+				trace("candy", candyToTrack.x, candyToTrack.y);
 				offsetX += candyToTrack.width + Math.random() * 50;
 			}
 			for(i = 0; i < tunaCount ; ++i)
@@ -323,9 +347,9 @@ package
 				if(tunaToTrack == null)
 					return;
 				tunaToTrack.x = child.x + stage.stageWidth + Math.random() * (stage.stageWidth /2) + offsetX;
-				tunaToTrack.y = 50 + (bg.height * 0.6);
+				tunaToTrack.y = 50 + Math.random() * (bg.height / 2) - stage.stageHeight;
 				tunaToAnimate[tunaToAnimateLength++] = tunaToTrack;
-//				trace("tuna", tunaToTrack.x, tunaToTrack.y);
+				trace("tuna", tunaToTrack.x, tunaToTrack.y);
 				offsetX += tunaToTrack.width + Math.random() * 50;
 			}
 			for(i = 0; i < fishBreadCount ; ++i)
@@ -334,9 +358,9 @@ package
 				if(fishBreadToTrack == null)
 					return;
 				fishBreadToTrack.x = child.x + stage.stageWidth + Math.random() * (stage.stageWidth /2) + offsetX;
-				fishBreadToTrack.y = 50 + (bg.height * 0.6);
+				fishBreadToTrack.y = 50 + Math.random() * (bg.height /2) - stage.stageHeight;
 				fishBreadToAnimate[fishBreadToAnimateLength++] = fishBreadToTrack;
-//				trace("fishBread", fishBreadToTrack.x, fishBreadToTrack.y);
+				trace("fishBread", fishBreadToTrack.x, fishBreadToTrack.y);
 				offsetX += fishBreadToTrack.width + Math.random() * 50;
 			}
 			
@@ -430,7 +454,7 @@ package
 		private function createCandy():Candy
 		{
 			var positionX:int = child.x + (stage.stageWidth *2) + Math.random() *300;
-			var positionY:int = 50 + Math.random() * 250;
+			var positionY:int = 0;
 			var candy:Candy = new Candy("Candy", {x:positionX, y: positionY, width:85, height:60});
 			candy.view = new CandyImage();
 			candy.onBeginContact.add(contactCandy);
@@ -440,7 +464,7 @@ package
 		private function createTuna():Tuna
 		{
 			var positionX:int = child.x + (stage.stageWidth *2) + Math.random() *300;
-			var positionY:int = 50 + Math.random() * 250;
+			var positionY:int = 0;
 			var tuna:Tuna = new Tuna("Tuna", {x:positionX, y:positionY, width:92, height:55});
 			tuna.view = new TunaImage();
 			tuna.onBeginContact.add(contactTuna);
@@ -450,7 +474,7 @@ package
 		private function createFishBread():FishShapedBread
 		{
 			var positionX:int = child.x + (stage.stageWidth *2) + Math.random() *300;
-			var positionY:int = 50 + Math.random() * 250;
+			var positionY:int = 0;
 			var fishBread:FishShapedBread = new FishShapedBread("fishBread", {x:positionX, y:positionY, width:62, height:62});
 			fishBread.view = new FiahBreadImage();
 			fishBread.onBeginContact.add(contactFishBread);
@@ -461,6 +485,7 @@ package
 		private function contactCandy(c:b2Contact):void
 		{
 			trace("get candy");
+			candyCount++;
 		}
 		//during five seconds income game money will twice than normal situation 
 		//At the first time, multiply 2, second multiply 3, third multiply 5, 
@@ -469,12 +494,14 @@ package
 		{
 			trace("get tuna");
 			boosterEffectRemainSeconds = GameConstantValue.TUNA_BOOSTER_SECONDS;
+			tunaCount++;
 		}
 		//during five seconds give more speed 0.3 * timeDelta
 		private function contactFishBread(c:b2Contact):void
 		{
 			trace("get fish bread");
 			boosterEffectRemainSeconds = GameConstantValue.FISH_BREAD_SECONDS;
+			fishBreadCount++;
 		}
 		private function disposeItemTemporarily($animateId:uint, $object:Object):void
 		{
@@ -672,4 +699,4 @@ trace("get fish bread");
 fishBreadEffectRemainSeconds = GameConstantValue.ITEM_MAINTENANCE_SECONDS;
 }
 }
-*/3
+*/

@@ -8,6 +8,7 @@ package item
 		{
 			super(name, params);
 		}
+		
 		override public function update(timeDelta:Number):void
 		{
 			

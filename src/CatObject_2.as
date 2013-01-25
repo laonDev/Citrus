@@ -68,17 +68,23 @@ package {
 //				this.body.SetLinearVelocity(new b2Vec2(this.body.GetLinearVelocity().x, 4));
 //				trace("falling", this.body.GetLinearVelocity().y);
 			}
-			
-//			var game:GameBackGround = _ce.getChildByName("bg") as GameBackGround;
-//			trace(game);
-//			if(this.body.GetLinearVelocity().y > 0 && _ce.getChildByName("bg")
-//			if(this.body.GetLinearVelocity().y + this.y < 300)
-//				this.y = 300;
+//			updateAnimation();
 			
 		}
 		public function set onGround(value:Boolean):void
 		{
 			this._onGround = value;			
+		}
+		public function updateAnimation():void
+		{
+//			this._animation = ;
+			if(_body.GetLinearVelocity().y < 0)
+				_animation = "cat_increase";
+			else
+				_animation = "cat_decrease";
+//			if(_onGround && _animation=="cat_decrease")
+//				_animation = "cat_landing";
+			
 		}
 		override protected function defineFixture():void {
 			
@@ -107,15 +113,14 @@ package {
 			switch (peObject) {
 				
 				case "cat":
-											
-//			        vertices.push(new b2Vec2(291/_box2D.scale, 76/_box2D.scale));
-//					vertices.push(new b2Vec2(321/_box2D.scale, 198/_box2D.scale));
-//					vertices.push(new b2Vec2(297/_box2D.scale, 239/_box2D.scale));
-//					vertices.push(new b2Vec2(209/_box2D.scale, 295/_box2D.scale));
-//					vertices.push(new b2Vec2(121/_box2D.scale, 318/_box2D.scale));
-//					vertices.push(new b2Vec2(81/_box2D.scale, 290/_box2D.scale));
-//					vertices.push(new b2Vec2(47/_box2D.scale, 197/_box2D.scale));
-//					vertices.push(new b2Vec2(125/_box2D.scale, 54/_box2D.scale));
+					
+//					vertices.push(new b2Vec2(38/_box2D.scale, 28/_box2D.scale));
+//					vertices.push(new b2Vec2(89/_box2D.scale, 43/_box2D.scale));
+//					vertices.push(new b2Vec2(65/_box2D.scale, 78/_box2D.scale));
+//					vertices.push(new b2Vec2(22/_box2D.scale, 80/_box2D.scale));
+//					
+//					_tab.push(vertices);
+					
 					vertices.push(new b2Vec2(91/_box2D.scale, 33/_box2D.scale));
 					vertices.push(new b2Vec2(79.2650909423828/_box2D.scale, 75.5905513763428/_box2D.scale));
 					vertices.push(new b2Vec2(73/_box2D.scale, 21/_box2D.scale));
@@ -166,7 +171,10 @@ package {
 			
 			}
 		}
-
+		public function set animation($state:String):void
+		{
+			_animation = $state;
+		}
 		protected function _getDensity():Number {
 
 			switch (peObject) {

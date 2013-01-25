@@ -3,9 +3,11 @@ package
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
 	
+	import citrus.core.CitrusEngine;
 	import citrus.core.starling.StarlingState;
 	
 	import starling.core.Starling;
+	import starling.display.Button;
 	import starling.display.Sprite;
 	import starling.events.Event;
 	
@@ -34,14 +36,17 @@ package
 		private var gravityLabel:TextField;
 		private var gravityText:TextField;
 		
+		private var playBtn:Button;
+		
 		public function GameSetting()
 		{
 			super();
-			this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+//			this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
-		
-		private function onAddedToStage(e:Event):void
+		override public function initialize():void
 		{
+			super.initialize();
+			
 			massiveLabel = new TextField();
 			massiveLabel.x = 150;
 			massiveLabel.y = 220;
@@ -84,19 +89,28 @@ package
 			forceText.type = TextFieldType.INPUT;
 			Starling.current.nativeOverlay.addChild(forceText);
 			
-//			gravityLabel = new TextField();
-//			gravityLabel.x = 350;
-//			gravityLabel.y = 275;
-//			gravityLabel.text = "Gravity";
-//			Starling.current.nativeOverlay.addChild(gravityLabel);
-//			
-//			gravityText = new TextField();
-//			gravityText.x = 450;
-//			gravityText.y = 275;
-//			gravityText.height = 20;
-//			gravityText.border = true;
-//			gravityText.type = TextFieldType.INPUT;
-//			Starling.current.nativeOverlay.addChild(gravityText);
+			playBtn = new Button(Assets.getAtlas().getTexture("cat_ready"));
+			playBtn.x = 500;
+			playBtn.y = 250;
+			playBtn.addEventListener(Event.TRIGGERED, onPlayClick);
+			this.addChild(playBtn);
+			
+			
+			setView(0, true);
+			
+			massive = 6;
+			force = 40 * 6;	
+			degree = -45;
+		}
+		
+		private function onPlayClick(e:Event):void
+		{
+//			Starling.current.nati
+			temporaryDipose();
+			var game:GameStats = new GameStats();
+			game.setValue(massive, force, degree);
+			CitrusEngine.getInstance().state = game;
+			this.destroy();
 			
 			
 		}
@@ -106,10 +120,6 @@ package
 			setView(-300, false);			
 		}
 		
-		override public function initialize():void
-		{
-			setView(0, true);
-		}
 		private function setView($nativeOverayY:int, $visible:Boolean):void
 		{
 //			TweenLite.to(Starling.current.nativeOverlay, 1.5, {y:$nativeOverayY, onComplete:this.tweenComplete, onCompleteParams:[$visible]});
